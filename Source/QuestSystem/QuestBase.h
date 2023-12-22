@@ -24,7 +24,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintPure, Category = "Quest")
-	const UObjectiveCollection* GetRootObjectiveCollection() { return RootObjectiveCollection; };
+	UObjectiveCollection* GetRootObjectiveCollection() const { return RootObjectiveCollection; }
 
 protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Quest")
