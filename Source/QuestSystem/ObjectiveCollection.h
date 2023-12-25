@@ -10,22 +10,22 @@ class QUESTSYSTEM_API UObjectiveCollection : public UObjectiveBase
 	GENERATED_BODY()
 
 public:
-	virtual void ActivateObjective_Implementation() override;
 
-	// Adds an objective to the collection
+	UFUNCTION(BlueprintPure, Category = "Objective")
+	TArray<UObjectiveBase*> GetObjectives() const { return Objectives; }
+
 	UFUNCTION(BlueprintCallable, Category = "Objective")
 	void AddObjective(UObjectiveBase* Objective) { Objectives.Add(Objective); }
 
-	virtual bool IsComplete() const override;
+	virtual bool IsComplete_Implementation() const override;
+	virtual void ActivateObjective_Implementation() override;
 
 protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Objective", Meta = (ExposeOnSpawn = "true"))
 	bool bOrderRequired{ false };
 
 private:
-
-	TArray<UObjectiveBase*> Objectives{ nullptr };
-
+	TArray<UObjectiveBase*> Objectives;
 	UObjectiveBase* GetNextIncompleteObjective();
 
 	void ActivateAllObjectives();

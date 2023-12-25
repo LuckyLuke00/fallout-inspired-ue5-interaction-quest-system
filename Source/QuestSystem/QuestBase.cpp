@@ -1,5 +1,6 @@
 #include "QuestBase.h"
 #include "Components/BillboardComponent.h"
+#include "ObjectiveCollection.h"
 
 // Sets default values
 AQuestBase::AQuestBase()
@@ -17,6 +18,7 @@ void AQuestBase::BeginPlay()
 
 	RootObjectiveCollection = ConstructRootObjectiveCollection();
 	PopulateObjectives(RootObjectiveCollection);
+	RootObjectiveCollection->ActivateObjective();
 }
 
 // Called every frame
