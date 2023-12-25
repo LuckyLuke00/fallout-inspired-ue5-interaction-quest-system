@@ -23,7 +23,7 @@ public:
 	virtual bool IsComplete() const PURE_VIRTUAL(UObjectiveBase::IsComplete, return false;);
 protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Objective", Meta = (ExposeOnSpawn = "true"))
-	FName ObjectiveName{ "DefaultObjectiveName" };
+	FText ObjectiveName{ FText::FromString("DefaultObjectiveName") };
 
 	UFUNCTION(BlueprintCallable, Category = "Objective")
 	void CallOnCompleted() { OnCompleted.Broadcast(this); };
