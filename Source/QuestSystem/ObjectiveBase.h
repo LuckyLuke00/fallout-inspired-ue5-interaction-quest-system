@@ -15,6 +15,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Objective")
 	bool IsActive() const { return bIsActive; };
 
+	UFUNCTION(BlueprintCallable, Category = "Objective")
+	bool IsOptional() const { return bIsOptional; };
+
 	UFUNCTION(BlueprintNativeEvent, Category = "Objective")
 	void ActivateObjective();
 	virtual void ActivateObjective_Implementation() { bIsActive = true; };
@@ -26,6 +29,9 @@ public:
 	FOnObjectiveCompleted OnCompleted;
 
 protected:
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Objective", Meta = (ExposeOnSpawn = "true"))
+	bool bIsOptional{ false };
+
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Objective", Meta = (ExposeOnSpawn = "true"))
 	FText ObjectiveName{ FText::FromString("DefaultObjectiveName") };
 

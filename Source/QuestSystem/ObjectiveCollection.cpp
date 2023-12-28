@@ -23,7 +23,7 @@ bool UObjectiveCollection::IsComplete_Implementation() const
 	return true;
 }
 
-UObjectiveBase* UObjectiveCollection::GetNextIncompleteObjective()
+UObjectiveBase* UObjectiveCollection::GetNextIncompleteObjective() const
 {
 	for (auto& Objective : Objectives)
 	{
@@ -39,25 +39,43 @@ void UObjectiveCollection::ActivateAllObjectives()
 {
 	for (auto& Objective : Objectives)
 	{
-		Objective->ActivateObjective();
-		Objective->OnCompleted.AddDynamic(this, &UObjectiveCollection::OnObjectiveCompleted);
+		InitiateObjective(Objective);
 	}
 }
 
 void UObjectiveCollection::ActivateNextObjective()
 {
-	if (UObjectiveBase* NextObjective{ GetNextIncompleteObjective() }; NextObjective)
+	UObjectiveBase* NextObjective{ nullptr };
+
+	do
 	{
-		NextObjective->ActivateObjective();
-		UE_LOG(LogTemp, Warning, TEXT("Activating objective %s"), *NextObjective->GetName());
-		NextObjective->OnCompleted.AddDynamic(this, &UObjectiveCollection::OnObjectiveCompleted);
-	}
+		NextObjective = GetNextIncompleteObjective();
+		if (!NextObjective) return;
+
+		InitiateObjective(NextObjective);
+	} while (NextObjective->IsOptional());
 }
 
 void UObjectiveCollection::OnObjectiveCompleted(UObjectiveBase* Objective)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Objective %s completed"), *Objective->GetName());
 	Objective->OnCompleted.RemoveDynamic(this, &UObjectiveCollection::OnObjectiveCompleted);
-
 	ActivateNextObjective();
+}
+
+void UObjectiveCollection::InitiateObjective(UObjectiveBase* Objective)
+{
+	if (!Objective)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UObjectiveCollection::InitiateObjective: Objective is nullptr"));
+		return;
+	}
+
+	if (Objective->IsActive())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UObjectiveCollection::InitiateObjective: Objective is already active"));
+		return;
+	}
+
+	Objective->ActivateObjective();
+	Objective->OnCompleted.AddDynamic(this, &UObjectiveCollection::OnObjectiveCompleted);
 }

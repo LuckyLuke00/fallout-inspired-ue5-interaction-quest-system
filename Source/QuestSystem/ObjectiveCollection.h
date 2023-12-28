@@ -26,10 +26,11 @@ protected:
 
 private:
 	TArray<UObjectiveBase*> Objectives;
-	UObjectiveBase* GetNextIncompleteObjective();
+	UObjectiveBase* GetNextIncompleteObjective() const;
 
 	void ActivateAllObjectives();
 	void ActivateNextObjective();
+	void InitiateObjective(UObjectiveBase* Objective);
 
 	UFUNCTION(Category = "Objective")
 	void OnObjectiveCompleted(UObjectiveBase* Objective);
