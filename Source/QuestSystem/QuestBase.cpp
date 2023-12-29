@@ -9,6 +9,11 @@ AQuestBase::AQuestBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	RootComponent = CreateDefaultSubobject<UBillboardComponent>(TEXT("Root Billboard Comp"));
+
+	if (bCanStartQuestImmediately)
+	{
+		Tags.AddUnique(StartImmediatelyTag);
+	}
 }
 
 // Called when the game starts or when spawned

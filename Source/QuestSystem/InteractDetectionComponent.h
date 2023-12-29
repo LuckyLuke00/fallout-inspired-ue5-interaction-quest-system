@@ -7,13 +7,14 @@
 class UPrimitiveComponent;
 class UInteractComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractDetectionUpdated);
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class QUESTSYSTEM_API UInteractDetectionComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
-
 	UInteractDetectionComponent();
 
 protected:
@@ -21,20 +22,25 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Interactable Detection")
-	UInteractComponent* GetClosestInteractable() const;
+	UInteractComponent* GetClosestInteractable() const { return ClosestInteractable; }
+
+	UPROPERTY(BlueprintAssignable, Category = "Interactable Detection")
+	FOnInteractDetectionUpdated OnInteractDetectionUpdated;
 
 private:
-	UPrimitiveComponent* InteractDetectionSphere{ nullptr };
+	bool bShouldUpdateClosestInteractable{ true };
 	TArray<UInteractComponent*> InteractablesInRange;
+	UInteractComponent* ClosestInteractable{ nullptr };
+	UPrimitiveComponent* InteractDetectionSphere{ nullptr };
 
 	AActor* LineTrace() const;
 	APlayerCameraManager* GetCameraManager() const;
 	double GetInteractableLookPercent(const UInteractComponent* Interactable) const;
 	UInteractComponent* GetInteractableComponent(const AActor* Actor) const;
+	void UpdateClosestInteractable();
 
 	UPROPERTY(EditAnywhere, Category = "Interactable Detection", meta = (ClampMin = "0.0"))
 	double InteractRange{ 800.0 };
@@ -47,5 +53,4 @@ private:
 
 	UFUNCTION()
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
 };

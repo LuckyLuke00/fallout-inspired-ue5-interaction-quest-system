@@ -16,7 +16,6 @@ UInteractDetectionComponent::UInteractDetectionComponent() :
 	InteractDetectionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	InteractDetectionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
 	InteractDetectionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
-
 }
 
 void UInteractDetectionComponent::BeginPlay()
@@ -32,24 +31,52 @@ void UInteractDetectionComponent::BeginPlay()
 void UInteractDetectionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (!bShouldUpdateClosestInteractable) return;
+
+	const auto OldClosestInteractable{ ClosestInteractable };
+	UpdateClosestInteractable();
+
+	if (OldClosestInteractable != ClosestInteractable)
+	{
+		OnInteractDetectionUpdated.Broadcast();
+	}
 }
 
-UInteractComponent* UInteractDetectionComponent::GetClosestInteractable() const
+void UInteractDetectionComponent::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (InteractablesInRange.IsEmpty()) return nullptr;
-
-	// First do the most accurate check
-	if (const auto ClosestInteractable{ LineTrace() })
+	if (const auto InteractComponent{ GetInteractableComponent(OtherActor) })
 	{
-		if (auto InteractComponent{ GetInteractableComponent(ClosestInteractable) })
+		InteractablesInRange.AddUnique(InteractComponent);
+
+		bShouldUpdateClosestInteractable = true;
+	}
+}
+void UInteractDetectionComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (const auto InteractComponent{ GetInteractableComponent(OtherActor) })
+	{
+		InteractablesInRange.Remove(InteractComponent);
+
+		if (InteractablesInRange.IsEmpty())
 		{
-			return InteractComponent;
+			ClosestInteractable = nullptr;
+			bShouldUpdateClosestInteractable = false;
+			OnInteractDetectionUpdated.Broadcast();
 		}
 	}
+}
 
-	// Then do a less accurate check (dot)
+UInteractComponent* UInteractDetectionComponent::GetInteractableComponent(const AActor* Actor) const
+{
+	if (!Actor) return nullptr;
+	return Actor->FindComponentByClass<UInteractComponent>();
+}
+
+void UInteractDetectionComponent::UpdateClosestInteractable()
+{
+	ClosestInteractable = nullptr;
 	double HighestLookPercent{ 0 };
-	UInteractComponent* ClosestInteractable{ nullptr };
 
 	for (const auto& InteractComponent : InteractablesInRange)
 	{
@@ -60,28 +87,17 @@ UInteractComponent* UInteractDetectionComponent::GetClosestInteractable() const
 		}
 	}
 
-	return ClosestInteractable;
-}
+	// If the closest interactable is still nullptr, it means we're no where near any interactables
+	if (!ClosestInteractable) return;
 
-void UInteractDetectionComponent::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (const auto InteractComponent{ GetInteractableComponent(OtherActor) })
+	// Then do the most accurate check
+	if (const auto Closest{ LineTrace() })
 	{
-		InteractablesInRange.AddUnique(InteractComponent);
+		if (auto InteractComponent{ GetInteractableComponent(Closest) })
+		{
+			ClosestInteractable = InteractComponent;
+		}
 	}
-}
-void UInteractDetectionComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	if (const auto InteractComponent{ GetInteractableComponent(OtherActor) })
-	{
-		InteractablesInRange.Remove(InteractComponent);
-	}
-}
-
-UInteractComponent* UInteractDetectionComponent::GetInteractableComponent(const AActor* Actor) const
-{
-	if (!Actor) return nullptr;
-	return Actor->FindComponentByClass<UInteractComponent>();
 }
 
 AActor* UInteractDetectionComponent::LineTrace() const

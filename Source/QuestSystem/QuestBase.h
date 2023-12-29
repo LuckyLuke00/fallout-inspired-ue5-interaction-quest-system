@@ -26,6 +26,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Quest")
 	UObjectiveCollection* GetRootObjectiveCollection() const { return RootObjectiveCollection; }
 
+	// Static Tag getter
+	UFUNCTION(BlueprintPure, Category = "Quest")
+	const FName& GetQuestTag() const { return StartImmediatelyTag; }
+
 protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Quest")
 	UObjectiveCollection* ConstructRootObjectiveCollection();
@@ -36,5 +40,10 @@ protected:
 	virtual void PopulateObjectives_Implementation(const UObjectiveCollection* ObjectiveCollection) PURE_VIRTUAL(AQuestBase::PopulateObjectives_Implementation, );
 
 private:
+	UPROPERTY(EditAnywhere, Category = "Quest", meta = (AllowPrivateAccess = "true"))
+	bool bCanStartQuestImmediately{ false };
+
+	const FName StartImmediatelyTag{ FName(TEXT("CanStartImmediately")) };
+
 	UObjectiveCollection* RootObjectiveCollection{ nullptr };
 };

@@ -14,6 +14,3 @@ class AQuestSystemGameMode : public AGameModeBase
 public:
 	AQuestSystemGameMode();
 };
-
-
-
