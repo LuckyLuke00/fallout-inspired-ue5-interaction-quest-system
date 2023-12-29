@@ -4,6 +4,8 @@
 #include "Components/ActorComponent.h"
 #include "InteractComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteract, AActor*, Interactor);
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class QUESTSYSTEM_API UInteractComponent : public UActorComponent
 {
@@ -14,14 +16,16 @@ public:
 
 	// Getters for the interactable name and action
 	UFUNCTION(BlueprintCallable, Category = "Interactable")
-	FName GetInteractableName() const { return InteractableName; }
+	FString GetInteractableName() const { return InteractableName; }
 
 	UFUNCTION(BlueprintCallable, Category = "Interactable")
-	FName GetInteractableAction() const { return InteractableAction; }
+	FString GetInteractableAction() const { return InteractableAction; }
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interactable")
-	void Interact(AActor* Interactor);
-	virtual void Interact_Implementation(AActor* Interactor) PURE_VIRTUAL(UInteractComponent::Interact_Implementation, );
+	UPROPERTY(BlueprintAssignable, Category = "Interactable")
+	FOnInteract OnInteract;
+
+	UFUNCTION(BlueprintCallable, Category = "Interactable")
+	void CallOnInteract(AActor* Interactor) const { OnInteract.Broadcast(Interactor); }
 
 protected:
 	virtual void BeginPlay() override;
@@ -30,10 +34,10 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Interactable")
-	FName InteractableName{ "Interactable" };
+	FString InteractableName{ "Interactable" };
 
 	UPROPERTY(EditAnywhere, Category = "Interactable")
-	FName InteractableAction{ "Take" };
+	FString InteractableAction{ "Take" };
 
 	void SetColliderResponseChannels();
 };

@@ -29,8 +29,12 @@ public:
 
 private:
 	UPrimitiveComponent* InteractDetectionSphere{ nullptr };
-
 	TArray<UInteractComponent*> InteractablesInRange;
+
+	AActor* LineTrace() const;
+	APlayerCameraManager* GetCameraManager() const;
+	double GetInteractableLookPercent(const UInteractComponent* Interactable) const;
+	UInteractComponent* GetInteractableComponent(const AActor* Actor) const;
 
 	UPROPERTY(EditAnywhere, Category = "Interactable Detection", meta = (ClampMin = "0.0"))
 	double InteractRange{ 800.0 };
@@ -38,18 +42,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Interactable Detection", meta = (ClampMin = "0.0", ClampMax = "1.0"))
 	double LookPercentThreshold{ 0.99 };
 
-	// Begin overlap
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	// End overlap
 	UFUNCTION()
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	UInteractComponent* GetInteractableComponent(const AActor* Actor) const;
-	AActor* LineTrace() const;
-	double GetInteractableLookPercent(const UInteractComponent* Interactable) const;
-
-	// Get the camera manager
-	APlayerCameraManager* GetCameraManager() const;
 };

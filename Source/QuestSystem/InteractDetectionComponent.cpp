@@ -2,11 +2,11 @@
 #include "Components/SphereComponent.h"
 #include "InteractComponent.h"
 
-UInteractDetectionComponent::UInteractDetectionComponent()
+UInteractDetectionComponent::UInteractDetectionComponent() :
+	InteractDetectionSphere{ CreateDefaultSubobject<USphereComponent>(TEXT("InteractDetectionSphere")) }
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	InteractDetectionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("InteractDetectionSphere"));
 	Cast<USphereComponent>(InteractDetectionSphere)->SetSphereRadius(InteractRange * .5);
 
 	// Set Collision
@@ -17,9 +17,6 @@ UInteractDetectionComponent::UInteractDetectionComponent()
 	InteractDetectionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
 	InteractDetectionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 
-	// Debug
-	InteractDetectionSphere->SetVisibility(true);
-	InteractDetectionSphere->SetHiddenInGame(false);
 }
 
 void UInteractDetectionComponent::BeginPlay()
@@ -39,7 +36,6 @@ void UInteractDetectionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 
 UInteractComponent* UInteractDetectionComponent::GetClosestInteractable() const
 {
-	UE_LOG(LogTemp, Warning, TEXT("Interactables in range: %d"), InteractablesInRange.Num());
 	if (InteractablesInRange.IsEmpty()) return nullptr;
 
 	// First do the most accurate check
@@ -102,8 +98,6 @@ AActor* UInteractDetectionComponent::LineTrace() const
 
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, TraceParams))
 	{
-		// Draw a debug line
-		DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, 1.f, 0, 1.f);
 		return HitResult.GetActor();
 	}
 
