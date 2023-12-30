@@ -37,7 +37,7 @@ UObjectiveBase* UObjectiveCollection::GetNextIncompleteObjective() const
 
 void UObjectiveCollection::ActivateAllObjectives()
 {
-	for (auto& Objective : Objectives)
+	for (const auto& Objective : Objectives)
 	{
 		InitiateObjective(Objective);
 	}
@@ -45,7 +45,7 @@ void UObjectiveCollection::ActivateAllObjectives()
 
 void UObjectiveCollection::ActivateNextObjective()
 {
-	UObjectiveBase* NextObjective{ nullptr };
+	UObjectiveBase* NextObjective;
 
 	do
 	{

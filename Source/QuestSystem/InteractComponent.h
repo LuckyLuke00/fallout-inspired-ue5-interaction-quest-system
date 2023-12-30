@@ -39,5 +39,5 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Interactable")
 	FString InteractableAction{ "Take" };
 
-	void SetColliderResponseChannels();
+	void SetColliderResponseChannels() const;
 };

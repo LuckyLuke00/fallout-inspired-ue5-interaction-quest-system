@@ -33,13 +33,16 @@ public:
 private:
 	bool bShouldUpdateClosestInteractable{ true };
 	TArray<UInteractComponent*> InteractablesInRange;
-	UInteractComponent* ClosestInteractable{ nullptr };
-	UPrimitiveComponent* InteractDetectionSphere{ nullptr };
+
+	UPROPERTY() // Fix potential stale pointer
+		UInteractComponent* ClosestInteractable{ nullptr };
+	UPROPERTY() // Fix potential stale pointer
+		UPrimitiveComponent* InteractDetectionSphere{ nullptr };
 
 	AActor* LineTrace() const;
 	APlayerCameraManager* GetCameraManager() const;
 	double GetInteractableLookPercent(const UInteractComponent* Interactable) const;
-	UInteractComponent* GetInteractableComponent(const AActor* Actor) const;
+	static UInteractComponent* GetInteractableComponent(const AActor* Actor);
 	void UpdateClosestInteractable();
 
 	UPROPERTY(EditAnywhere, Category = "Interactable Detection", meta = (ClampMin = "0.0"))

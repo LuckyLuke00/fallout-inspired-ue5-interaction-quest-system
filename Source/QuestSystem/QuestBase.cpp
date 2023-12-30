@@ -2,21 +2,13 @@
 #include "Components/BillboardComponent.h"
 #include "ObjectiveCollection.h"
 
-// Sets default values
 AQuestBase::AQuestBase()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	RootComponent = CreateDefaultSubobject<UBillboardComponent>(TEXT("Root Billboard Comp"));
-
-	if (bCanStartQuestImmediately)
-	{
-		Tags.AddUnique(StartImmediatelyTag);
-	}
 }
 
-// Called when the game starts or when spawned
 void AQuestBase::BeginPlay()
 {
 	Super::BeginPlay();
@@ -26,7 +18,6 @@ void AQuestBase::BeginPlay()
 	RootObjectiveCollection->ActivateObjective();
 }
 
-// Called every frame
 void AQuestBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

@@ -67,7 +67,7 @@ void UInteractDetectionComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedCo
 	}
 }
 
-UInteractComponent* UInteractDetectionComponent::GetInteractableComponent(const AActor* Actor) const
+UInteractComponent* UInteractDetectionComponent::GetInteractableComponent(const AActor* Actor)
 {
 	if (!Actor) return nullptr;
 	return Actor->FindComponentByClass<UInteractComponent>();

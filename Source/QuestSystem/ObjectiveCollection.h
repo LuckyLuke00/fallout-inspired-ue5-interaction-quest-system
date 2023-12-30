@@ -10,7 +10,6 @@ class QUESTSYSTEM_API UObjectiveCollection : public UObjectiveBase
 	GENERATED_BODY()
 
 public:
-
 	UFUNCTION(BlueprintPure, Category = "Objective")
 	TArray<UObjectiveBase*> GetObjectives() const { return Objectives; }
 
@@ -25,7 +24,9 @@ protected:
 	bool bOrderRequired{ false };
 
 private:
-	TArray<UObjectiveBase*> Objectives;
+	UPROPERTY() // Fix potential stale pointer
+		TArray<UObjectiveBase*> Objectives;
+
 	UObjectiveBase* GetNextIncompleteObjective() const;
 
 	void ActivateAllObjectives();
