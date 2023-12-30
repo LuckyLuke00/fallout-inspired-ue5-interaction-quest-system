@@ -23,6 +23,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Quest")
 	UObjectiveCollection* GetRootObjectiveCollection() const { return RootObjectiveCollection; }
 
+	bool ShouldAutoActivate() const { return bAutoActivate; }
+
 protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Quest")
 	UObjectiveCollection* ConstructRootObjectiveCollection();
@@ -35,4 +37,7 @@ protected:
 private:
 	UPROPERTY() // Fix potential stale pointer
 		UObjectiveCollection* RootObjectiveCollection{ nullptr };
+
+	UPROPERTY(EditAnywhere, Category = "Quest")
+	bool bAutoActivate{ false };
 };
