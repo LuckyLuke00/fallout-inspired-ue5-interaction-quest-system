@@ -35,4 +35,5 @@ private:
 
 	UFUNCTION(Category = "Objective")
 	void OnObjectiveCompleted(UObjectiveBase* Objective);
+	void OnAllObjectivesComplete();
 };

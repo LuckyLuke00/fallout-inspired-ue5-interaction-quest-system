@@ -17,6 +17,7 @@ bool UObjectiveCollection::IsComplete_Implementation() const
 {
 	for (auto& Objective : Objectives)
 	{
+		if (Objective->IsOptional()) continue;
 		if (!Objective->IsComplete()) return false;
 	}
 
@@ -27,7 +28,7 @@ UObjectiveBase* UObjectiveCollection::GetNextIncompleteObjective() const
 {
 	for (auto& Objective : Objectives)
 	{
-		if (Objective->IsActive()) continue;
+		if (Objective->IsComplete() || Objective->IsActive()) continue;
 
 		return Objective;
 	}
@@ -50,7 +51,11 @@ void UObjectiveCollection::ActivateNextObjective()
 	do
 	{
 		NextObjective = GetNextIncompleteObjective();
-		if (!NextObjective) return;
+		if (!NextObjective)
+		{
+			OnAllObjectivesComplete();
+			return;
+		}
 
 		InitiateObjective(NextObjective);
 	} while (NextObjective->IsOptional());
@@ -60,6 +65,18 @@ void UObjectiveCollection::OnObjectiveCompleted(UObjectiveBase* Objective)
 {
 	Objective->OnCompleted.RemoveDynamic(this, &UObjectiveCollection::OnObjectiveCompleted);
 	ActivateNextObjective();
+}
+
+void UObjectiveCollection::OnAllObjectivesComplete()
+{
+	// Fail all optional objectives
+	for (const auto& Objective : Objectives)
+	{
+		if (!Objective->IsOptional()) continue;
+		if (Objective->IsComplete()) continue;
+
+		Objective->SetFailed();
+	}
 }
 
 void UObjectiveCollection::InitiateObjective(UObjectiveBase* Objective)

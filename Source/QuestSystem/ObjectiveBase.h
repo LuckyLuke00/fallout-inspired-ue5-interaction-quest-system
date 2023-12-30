@@ -17,13 +17,23 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Objective")
 	bool IsOptional() const { return bIsOptional; };
 
+	UFUNCTION(BlueprintCallable, Category = "Objective")
+	bool IsFailed() const { return bIsFailed; };
+
+	UFUNCTION(BlueprintCallable, Category = "Objective")
+	void SetFailed(bool bFailed = true) { bIsFailed = bFailed; if (bFailed) DeactivateObjective(); };
+
 	UFUNCTION(BlueprintNativeEvent, Category = "Objective")
 	void ActivateObjective();
 	virtual void ActivateObjective_Implementation() { bIsActive = true; };
 
+	UFUNCTION(BlueprintNativeEvent, Category = "Objective")
+	void DeactivateObjective();
+	virtual void DeactivateObjective_Implementation() { bIsActive = false; };
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Objective")
 	bool IsComplete() const;
-	virtual bool IsComplete_Implementation() const PURE_VIRTUAL(UObjectiveBase::IsComplete, return false;);
+	virtual bool IsComplete_Implementation() const PURE_VIRTUAL(UObjectiveBase::IsComplete, return bIsComplete;);
 
 	FOnObjectiveCompleted OnCompleted;
 
@@ -35,8 +45,10 @@ protected:
 	FText ObjectiveName{ FText::FromString("DefaultObjectiveName") };
 
 	UFUNCTION(BlueprintCallable, Category = "Objective")
-	void CallOnCompleted(UObjectiveBase* Objective) { OnCompleted.Broadcast(Objective); };
+	void CallOnCompleted(UObjectiveBase* Objective) { bIsComplete = true; DeactivateObjective();  OnCompleted.Broadcast(Objective); };
 
 private:
 	bool bIsActive{ false };
+	bool bIsComplete{ false };
+	bool bIsFailed{ false };
 };
