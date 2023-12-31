@@ -27,10 +27,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void RemoveItem(AInventoryItem* Item, int32 Quantity = 1);
-
-	// Function that returns how many items of a certain class are in the inventory
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	int32 GetItemCount(AInventoryItem* ItemClass) const;
+	int32 GetItemCount(TSubclassOf<AInventoryItem> ItemClass) const;
 
 	UPROPERTY(BlueprintAssignable, Category = "Inventory")
 	FOnInventoryUpdated OnInventoryUpdated;

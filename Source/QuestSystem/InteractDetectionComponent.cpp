@@ -37,7 +37,7 @@ void UInteractDetectionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	const auto OldClosestInteractable{ ClosestInteractable };
 	UpdateClosestInteractable();
 
-	if (OldClosestInteractable != ClosestInteractable)
+	//if (OldClosestInteractable != ClosestInteractable)
 	{
 		OnInteractDetectionUpdated.Broadcast();
 	}
@@ -57,6 +57,13 @@ void UInteractDetectionComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedCo
 	if (const auto InteractComponent{ GetInteractableComponent(OtherActor) })
 	{
 		InteractablesInRange.Remove(InteractComponent);
+
+		// If the closest interactable is the one that just left the range, we need to update the closest interactable
+		if (ClosestInteractable == InteractComponent)
+		{
+			ClosestInteractable = nullptr;
+			OnInteractDetectionUpdated.Broadcast();
+		}
 
 		if (InteractablesInRange.IsEmpty())
 		{
@@ -87,13 +94,13 @@ void UInteractDetectionComponent::UpdateClosestInteractable()
 		}
 	}
 
-	// If the closest interactable is still nullptr, it means we're no where near any interactables
+	// If the closest interactable is still nullptr, it means we're nowhere near any interactables
 	if (!ClosestInteractable) return;
 
 	// Then do the most accurate check
 	if (const auto Closest{ LineTrace() })
 	{
-		if (auto InteractComponent{ GetInteractableComponent(Closest) })
+		if (const auto InteractComponent{ GetInteractableComponent(Closest) })
 		{
 			ClosestInteractable = InteractComponent;
 		}

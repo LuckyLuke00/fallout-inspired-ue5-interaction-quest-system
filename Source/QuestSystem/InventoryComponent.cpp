@@ -1,4 +1,5 @@
 #include "InventoryComponent.h"
+#include "InventoryItem.h"
 
 UInventoryComponent::UInventoryComponent()
 {
@@ -44,12 +45,17 @@ void UInventoryComponent::RemoveItem(AInventoryItem* Item, int32 Quantity)
 	OnInventoryUpdated.Broadcast();
 }
 
-int32 UInventoryComponent::GetItemCount(AInventoryItem* ItemClass) const
+int32 UInventoryComponent::GetItemCount(TSubclassOf<AInventoryItem> ItemClass) const
 {
-	if (Inventory.Contains(ItemClass))
+	int32 ItemCount{ 0 };
+
+	for (const auto& Item : Inventory)
 	{
-		return Inventory[ItemClass];
+		if (Item.Key->GetClass() == ItemClass)
+		{
+			ItemCount += Item.Value;
+		}
 	}
 
-	return 0;
+	return ItemCount;
 }
