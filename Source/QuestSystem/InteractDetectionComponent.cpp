@@ -26,6 +26,19 @@ void UInteractDetectionComponent::BeginPlay()
 
 	InteractDetectionSphere->OnComponentBeginOverlap.AddDynamic(this, &UInteractDetectionComponent::OnOverlapBegin);
 	InteractDetectionSphere->OnComponentEndOverlap.AddDynamic(this, &UInteractDetectionComponent::OnOverlapEnd);
+
+	// Prevent interactables already in range at BeginPlay from not being detected
+	TArray<AActor*> OverlappingActors;
+	InteractDetectionSphere->GetOverlappingActors(OverlappingActors, AActor::StaticClass());
+
+	for (const auto& Actor : OverlappingActors)
+	{
+		if (const auto InteractComponent{ GetInteractableComponent(Actor) })
+		{
+			InteractablesInRange.AddUnique(InteractComponent);
+			bShouldUpdateClosestInteractable = true;
+		}
+	}
 }
 
 void UInteractDetectionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -37,7 +50,7 @@ void UInteractDetectionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	const auto OldClosestInteractable{ ClosestInteractable };
 	UpdateClosestInteractable();
 
-	//if (OldClosestInteractable != ClosestInteractable)
+	if (OldClosestInteractable != ClosestInteractable)
 	{
 		OnInteractDetectionUpdated.Broadcast();
 	}
