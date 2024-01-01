@@ -18,8 +18,10 @@ bool UObjectiveCollection::IsComplete_Implementation() const
 	for (auto& Objective : Objectives)
 	{
 		if (Objective->IsOptional()) continue;
-		if (!Objective->IsComplete()) return false;
+		if (!Objective->IsComplete() && !Objective->IsFailed()) return false;
 	}
+
+	OnObjectiveCollectionCompleted.Broadcast();
 
 	return true;
 }
@@ -51,11 +53,7 @@ void UObjectiveCollection::ActivateNextObjective()
 	do
 	{
 		NextObjective = GetNextIncompleteObjective();
-		if (!NextObjective)
-		{
-			OnAllObjectivesComplete();
-			return;
-		}
+		if (!NextObjective) break;
 
 		InitiateObjective(NextObjective);
 	} while (NextObjective->IsOptional());
@@ -65,6 +63,7 @@ void UObjectiveCollection::OnObjectiveCompleted(UObjectiveBase* Objective)
 {
 	Objective->OnCompleted.RemoveDynamic(this, &UObjectiveCollection::OnObjectiveCompleted);
 	ActivateNextObjective();
+	if (IsComplete_Implementation()) OnAllObjectivesComplete();
 }
 
 void UObjectiveCollection::OnAllObjectivesComplete()
@@ -77,8 +76,6 @@ void UObjectiveCollection::OnAllObjectivesComplete()
 
 		Objective->SetFailed();
 	}
-
-	OnObjectiveCollectionCompleted.Broadcast();
 }
 
 void UObjectiveCollection::InitiateObjective(UObjectiveBase* Objective)

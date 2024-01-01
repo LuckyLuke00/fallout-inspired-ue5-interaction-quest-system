@@ -32,6 +32,6 @@ const FText& AQuestBase::GetQuestName() const
 
 void AQuestBase::OnRootObjectiveCollectionCompleted()
 {
-	OnQuestBaseCompleted.Broadcast(this);
 	RootObjectiveCollection->OnObjectiveCollectionCompleted.RemoveDynamic(this, &AQuestBase::OnRootObjectiveCollectionCompleted);
+	OnQuestBaseCompleted.Broadcast(this);
 }

@@ -50,6 +50,6 @@ void UQuestManager::AddAutoActivatingQuests()
 
 void UQuestManager::OnQuestBaseCompleted(AQuestBase* Quest)
 {
-	OnQuestCompleted.Broadcast(Quest);
 	Quest->OnQuestBaseCompleted.RemoveDynamic(this, &UQuestManager::OnQuestBaseCompleted);
+	OnQuestCompleted.Broadcast(Quest);
 }
