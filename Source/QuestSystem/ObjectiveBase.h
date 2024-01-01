@@ -35,6 +35,9 @@ public:
 	bool IsComplete() const;
 	virtual bool IsComplete_Implementation() const PURE_VIRTUAL(UObjectiveBase::IsComplete, return bIsComplete;);
 
+	UFUNCTION(BlueprintCallable, Category = "Objective")
+	const FText& GetObjectiveName() const { return ObjectiveName; };
+
 	FOnObjectiveCompleted OnCompleted;
 
 protected:

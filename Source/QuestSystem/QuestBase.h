@@ -6,6 +6,8 @@
 
 class UObjectiveCollection;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnQuestBaseCompleted, AQuestBase*, Quest);
+
 UCLASS(Abstract)
 class QUESTSYSTEM_API AQuestBase : public AActor
 {
@@ -25,6 +27,12 @@ public:
 
 	bool ShouldAutoActivate() const { return bAutoActivate; }
 
+	UPROPERTY(BlueprintAssignable, Category = "Quest")
+	FOnQuestBaseCompleted OnQuestBaseCompleted;
+
+	UFUNCTION(BlueprintPure, Category = "Quest")
+	const FText& GetQuestName() const;
+
 protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Quest")
 	UObjectiveCollection* ConstructRootObjectiveCollection();
@@ -40,4 +48,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Quest")
 	bool bAutoActivate{ false };
+
+	UFUNCTION()
+	void OnRootObjectiveCollectionCompleted();
 };

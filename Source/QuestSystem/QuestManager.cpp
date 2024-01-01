@@ -15,9 +15,13 @@ void UQuestManager::AddQuest(AQuestBase* Quest)
 		return;
 	}
 
-	Quests.AddUnique(Quest);
-}
+	// Prevent multiple broadcasts and assignments
+	if (Quests.Contains(Quest)) return;
 
+	Quests.AddUnique(Quest);
+	OnQuestAdded.Broadcast(Quest);
+	Quest->OnQuestBaseCompleted.AddDynamic(this, &UQuestManager::OnQuestBaseCompleted);
+}
 void UQuestManager::BeginPlay()
 {
 	Super::BeginPlay();
@@ -40,6 +44,12 @@ void UQuestManager::AddAutoActivatingQuests()
 		AQuestBase* Quest{ Cast<AQuestBase>(Actor) };
 		if (!Quest || !Quest->ShouldAutoActivate()) continue;
 
-		Quests.AddUnique(Quest);
+		AddQuest(Quest);
 	}
+}
+
+void UQuestManager::OnQuestBaseCompleted(AQuestBase* Quest)
+{
+	OnQuestCompleted.Broadcast(Quest);
+	Quest->OnQuestBaseCompleted.RemoveDynamic(this, &UQuestManager::OnQuestBaseCompleted);
 }

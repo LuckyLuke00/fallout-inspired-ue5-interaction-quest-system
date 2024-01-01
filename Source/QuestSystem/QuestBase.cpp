@@ -16,9 +16,22 @@ void AQuestBase::BeginPlay()
 	RootObjectiveCollection = ConstructRootObjectiveCollection();
 	PopulateObjectives(RootObjectiveCollection);
 	RootObjectiveCollection->ActivateObjective();
+
+	RootObjectiveCollection->OnObjectiveCollectionCompleted.AddDynamic(this, &AQuestBase::OnRootObjectiveCollectionCompleted);
 }
 
 void AQuestBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+const FText& AQuestBase::GetQuestName() const
+{
+	return RootObjectiveCollection->GetObjectiveName();
+}
+
+void AQuestBase::OnRootObjectiveCollectionCompleted()
+{
+	OnQuestBaseCompleted.Broadcast(this);
+	RootObjectiveCollection->OnObjectiveCollectionCompleted.RemoveDynamic(this, &AQuestBase::OnRootObjectiveCollectionCompleted);
 }

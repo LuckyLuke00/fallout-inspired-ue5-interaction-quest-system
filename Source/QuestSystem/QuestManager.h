@@ -6,6 +6,9 @@
 
 class AQuestBase;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnQuestAdded, AQuestBase*, Quest);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnQuestCompleted, AQuestBase*, Quest);
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class QUESTSYSTEM_API UQuestManager : public UActorComponent
 {
@@ -20,6 +23,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Quest")
 	const TArray<AQuestBase*>& GetQuests() const { return Quests; }
 
+	UPROPERTY(BlueprintAssignable, Category = "Quest")
+	FOnQuestAdded OnQuestAdded;
+
+	UPROPERTY(BlueprintAssignable, Category = "Quest")
+	FOnQuestCompleted OnQuestCompleted;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -30,4 +39,7 @@ private:
 	TArray<AQuestBase*> Quests;
 
 	void AddAutoActivatingQuests();
+
+	UFUNCTION()
+	void OnQuestBaseCompleted(AQuestBase* Quest);
 };

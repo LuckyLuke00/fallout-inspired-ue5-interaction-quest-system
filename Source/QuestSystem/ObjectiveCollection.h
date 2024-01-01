@@ -4,6 +4,8 @@
 #include "ObjectiveBase.h"
 #include "ObjectiveCollection.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnObjectiveCollectionCompleted);
+
 UCLASS(BlueprintType)
 class QUESTSYSTEM_API UObjectiveCollection : public UObjectiveBase
 {
@@ -18,6 +20,9 @@ public:
 
 	virtual bool IsComplete_Implementation() const override;
 	virtual void ActivateObjective_Implementation() override;
+
+	UPROPERTY(BlueprintAssignable, Category = "Objective")
+	FOnObjectiveCollectionCompleted OnObjectiveCollectionCompleted;
 
 protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Objective", Meta = (ExposeOnSpawn = "true"))

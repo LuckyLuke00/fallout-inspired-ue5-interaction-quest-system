@@ -77,6 +77,8 @@ void UObjectiveCollection::OnAllObjectivesComplete()
 
 		Objective->SetFailed();
 	}
+
+	OnObjectiveCollectionCompleted.Broadcast();
 }
 
 void UObjectiveCollection::InitiateObjective(UObjectiveBase* Objective)
