@@ -51,7 +51,7 @@ int32 UInventoryComponent::GetItemCount(TSubclassOf<AInventoryItem> ItemClass) c
 
 	for (const auto& Item : Inventory)
 	{
-		if (Item.Key->GetClass() == ItemClass)
+		if (Item.Key && Item.Key->GetClass() == ItemClass)
 		{
 			ItemCount += Item.Value;
 		}
