@@ -21,7 +21,16 @@ public:
 	bool IsFailed() const { return bIsFailed; };
 
 	UFUNCTION(BlueprintCallable, Category = "Objective")
+	bool IsHidden() const { return bIsHidden; };
+
+	UFUNCTION(BlueprintCallable, Category = "Objective")
 	void SetFailed(bool bFailed = true) { bIsFailed = bFailed; if (bFailed) DeactivateObjective(); };
+
+	UFUNCTION(BlueprintCallable, Category = "Objective")
+	void SetHidden(bool bHidden = true) { bIsHidden = bHidden; };
+
+	UFUNCTION(BlueprintCallable, Category = "Objective")
+	void SetOptional(bool bOptional = true) { bIsOptional = bOptional; };
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Objective")
 	void ActivateObjective();
@@ -31,12 +40,14 @@ public:
 	void DeactivateObjective();
 	virtual void DeactivateObjective_Implementation() { bIsActive = false; };
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Objective")
-	bool IsComplete() const;
-	virtual bool IsComplete_Implementation() const { return bIsComplete; };
+	UFUNCTION(BlueprintCallable, Category = "Objective")
+	bool IsComplete() const { return bIsComplete; };
 
 	UFUNCTION(BlueprintCallable, Category = "Objective")
 	const FText& GetObjectiveName() const { return ObjectiveName; };
+
+	UFUNCTION(BlueprintCallable, Category = "Objective")
+	void CallOnCompleted() { bIsComplete = true; SetHidden(false); DeactivateObjective(); OnCompleted.Broadcast(this); };
 
 	FOnObjectiveCompleted OnCompleted;
 
@@ -47,11 +58,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Objective", Meta = (ExposeOnSpawn = "true"))
 	FText ObjectiveName{ FText::FromString("DefaultObjectiveName") };
 
-	UFUNCTION(BlueprintCallable, Category = "Objective")
-	void CallOnCompleted(UObjectiveBase* Objective) { bIsComplete = true; DeactivateObjective(); OnCompleted.Broadcast(Objective); };
-
 private:
 	bool bIsActive{ false };
 	bool bIsComplete{ false };
 	bool bIsFailed{ false };
+	bool bIsHidden{ false };
 };

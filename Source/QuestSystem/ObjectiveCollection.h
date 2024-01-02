@@ -25,6 +25,9 @@ public:
 
 protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Objective", Meta = (ExposeOnSpawn = "true"))
+	bool bCanSkipOrderedObjectives{ false };
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Objective", Meta = (ExposeOnSpawn = "true"))
 	bool bOrderRequired{ false };
 
 private:
@@ -39,5 +42,6 @@ private:
 
 	void ActivateAllObjectives();
 	void ActivateNextObjective();
+	void CompletePreviousObjectives(const UObjectiveBase* Objective);
 	void InitiateObjective(UObjectiveBase* Objective);
 };

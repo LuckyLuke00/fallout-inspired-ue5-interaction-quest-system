@@ -14,9 +14,12 @@ void AQuestBase::BeginPlay()
 	Super::BeginPlay();
 
 	RootObjectiveCollection = ConstructRootObjectiveCollection();
+
+	// The root objective cannot be optional
+	RootObjectiveCollection->SetOptional(false);
+
 	PopulateObjectives(RootObjectiveCollection);
 	RootObjectiveCollection->ActivateObjective();
-
 	RootObjectiveCollection->OnObjectiveCollectionCompleted.AddDynamic(this, &AQuestBase::OnRootObjectiveCollectionCompleted);
 }
 
