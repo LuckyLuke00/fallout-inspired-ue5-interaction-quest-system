@@ -23,6 +23,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Quest")
 	const TArray<AQuestBase*>& GetQuests() const { return Quests; }
 
+	UFUNCTION(BlueprintPure, Category = "Quest")
+	bool HasQuest(AQuestBase* Quest) const { return Quests.Contains(Quest); }
+
 	UPROPERTY(BlueprintAssignable, Category = "Quest")
 	FOnQuestAdded OnQuestAdded;
 

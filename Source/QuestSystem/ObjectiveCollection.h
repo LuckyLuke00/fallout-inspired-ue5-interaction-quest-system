@@ -16,7 +16,7 @@ public:
 	FOnObjectiveCollectionCompleted OnObjectiveCollectionCompleted;
 
 	UFUNCTION(BlueprintPure, Category = "Objective")
-	TArray<UObjectiveBase*> GetObjectives() const { return Objectives; }
+	const TArray<UObjectiveBase*>& GetObjectives() const { return Objectives; }
 
 	UFUNCTION(BlueprintCallable, Category = "Objective")
 	void AddObjective(UObjectiveBase* Objective) { Objectives.Add(Objective); }
