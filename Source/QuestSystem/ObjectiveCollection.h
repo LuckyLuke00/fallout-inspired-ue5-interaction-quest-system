@@ -12,17 +12,16 @@ class QUESTSYSTEM_API UObjectiveCollection : public UObjectiveBase
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(BlueprintAssignable, Category = "Objective")
+	FOnObjectiveCollectionCompleted OnObjectiveCollectionCompleted;
+
 	UFUNCTION(BlueprintPure, Category = "Objective")
 	TArray<UObjectiveBase*> GetObjectives() const { return Objectives; }
 
 	UFUNCTION(BlueprintCallable, Category = "Objective")
 	void AddObjective(UObjectiveBase* Objective) { Objectives.Add(Objective); }
 
-	virtual bool IsComplete_Implementation() const override;
 	virtual void ActivateObjective_Implementation() override;
-
-	UPROPERTY(BlueprintAssignable, Category = "Objective")
-	FOnObjectiveCollectionCompleted OnObjectiveCollectionCompleted;
 
 protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Objective", Meta = (ExposeOnSpawn = "true"))
@@ -32,13 +31,13 @@ private:
 	UPROPERTY() // Fix potential stale pointer
 		TArray<UObjectiveBase*> Objectives;
 
+	UFUNCTION(Category = "Objective")
+	void OnObjectiveCompleted(UObjectiveBase* Objective);
+
+	bool CheckCompletion();
 	UObjectiveBase* GetNextIncompleteObjective() const;
 
 	void ActivateAllObjectives();
 	void ActivateNextObjective();
 	void InitiateObjective(UObjectiveBase* Objective);
-
-	UFUNCTION(Category = "Objective")
-	void OnObjectiveCompleted(UObjectiveBase* Objective);
-	void OnAllObjectivesComplete();
 };

@@ -33,7 +33,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Objective")
 	bool IsComplete() const;
-	virtual bool IsComplete_Implementation() const PURE_VIRTUAL(UObjectiveBase::IsComplete, return bIsComplete;);
+	virtual bool IsComplete_Implementation() const { return bIsComplete; };
 
 	UFUNCTION(BlueprintCallable, Category = "Objective")
 	const FText& GetObjectiveName() const { return ObjectiveName; };
@@ -48,7 +48,7 @@ protected:
 	FText ObjectiveName{ FText::FromString("DefaultObjectiveName") };
 
 	UFUNCTION(BlueprintCallable, Category = "Objective")
-	void CallOnCompleted(UObjectiveBase* Objective) { bIsComplete = true; DeactivateObjective();  OnCompleted.Broadcast(Objective); };
+	void CallOnCompleted(UObjectiveBase* Objective) { bIsComplete = true; DeactivateObjective(); OnCompleted.Broadcast(Objective); };
 
 private:
 	bool bIsActive{ false };

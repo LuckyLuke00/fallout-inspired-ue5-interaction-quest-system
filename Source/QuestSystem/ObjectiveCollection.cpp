@@ -13,14 +13,25 @@ void UObjectiveCollection::ActivateObjective_Implementation()
 	ActivateNextObjective();
 }
 
-bool UObjectiveCollection::IsComplete_Implementation() const
+bool UObjectiveCollection::CheckCompletion()
 {
+	// Check if all non-optional objectives are complete
 	for (auto& Objective : Objectives)
 	{
 		if (Objective->IsOptional()) continue;
 		if (!Objective->IsComplete() && !Objective->IsFailed()) return false;
 	}
 
+	// All non optional objectives are complete, so we can fail all optional objectives
+	for (const auto& Objective : Objectives)
+	{
+		if (!Objective->IsOptional()) continue;
+		if (Objective->IsComplete()) continue;
+
+		Objective->SetFailed();
+	}
+
+	CallOnCompleted(this);
 	OnObjectiveCollectionCompleted.Broadcast();
 
 	return true;
@@ -63,19 +74,7 @@ void UObjectiveCollection::OnObjectiveCompleted(UObjectiveBase* Objective)
 {
 	Objective->OnCompleted.RemoveDynamic(this, &UObjectiveCollection::OnObjectiveCompleted);
 	ActivateNextObjective();
-	if (IsComplete_Implementation()) OnAllObjectivesComplete();
-}
-
-void UObjectiveCollection::OnAllObjectivesComplete()
-{
-	// Fail all optional objectives
-	for (const auto& Objective : Objectives)
-	{
-		if (!Objective->IsOptional()) continue;
-		if (Objective->IsComplete()) continue;
-
-		Objective->SetFailed();
-	}
+	CheckCompletion();
 }
 
 void UObjectiveCollection::InitiateObjective(UObjectiveBase* Objective)
