@@ -19,10 +19,14 @@ void AResourceUsageProfiler::BeginPlay()
 	PdhOpenQuery(nullptr, NULL, &cpuQuery);
 	PdhAddEnglishCounter(cpuQuery, TEXT("\\Processor(_Total)\\% Processor Time"), NULL, &cpuTotal);
 
-	UpdateStats();
-
 	// Set a timer to call UpdateStats every second
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &AResourceUsageProfiler::UpdateStats, 1.0f, true);
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AResourceUsageProfiler::UpdateStats, 1.f, true, false);
+
+	// Set a timer to call ExitGame after the specified delay
+	if (ExitDelayMinutes > 0)
+	{
+		GetWorldTimerManager().SetTimer(ExitTimerHandle, this, &AResourceUsageProfiler::ExitGame, ExitDelayMinutes * 60, false);
+	}
 }
 
 void AResourceUsageProfiler::Tick(float DeltaTime)
@@ -56,5 +60,20 @@ void AResourceUsageProfiler::UpdateStats()
 		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Average CPU Load: %f (%.2f%% change)"), counterVal.doubleValue, CPULoadChange));
 		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Average RAM Usage: %llu MB (%.2f%% change)"), PhysMemUsedMb, RAMChange));
 		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Average FPS: %f (%.2f%% change)"), AverageFPS, FPSChange));
+
+		UE_LOG(LogTemp, Warning, TEXT("Average CPU Load: %f (%.2f%% change)"), counterVal.doubleValue, CPULoadChange);
+		UE_LOG(LogTemp, Warning, TEXT("Average RAM Usage: %llu MB (%.2f%% change)"), PhysMemUsedMb, RAMChange);
+		UE_LOG(LogTemp, Warning, TEXT("Average FPS: %f (%.2f%% change)"), AverageFPS, FPSChange);
 	}
+}
+
+void AResourceUsageProfiler::ExitGame()
+{
+	// Cleanup
+	PdhCloseQuery(cpuQuery);
+	cpuQuery = nullptr;
+
+	// Clear timers
+	GetWorldTimerManager().ClearTimer(TimerHandle);
+	GetWorldTimerManager().ClearTimer(ExitTimerHandle);
 }

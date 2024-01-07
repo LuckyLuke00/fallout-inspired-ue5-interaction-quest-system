@@ -34,6 +34,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Benchmark")
 	float TargetFPS{ .0f };
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Benchmark")
+	float ExitDelayMinutes{ .0f };
+
 private:
 	double StartTime{ .0 };
 	double TotalCPULoad{ .0 };
@@ -47,6 +50,8 @@ private:
 	PDH_HQUERY cpuQuery{ nullptr };
 
 	FTimerHandle TimerHandle;
+	FTimerHandle ExitTimerHandle;
 
 	void UpdateStats();
+	void ExitGame();
 };
