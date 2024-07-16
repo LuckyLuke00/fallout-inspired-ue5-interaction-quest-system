@@ -39,17 +39,17 @@ private:
 	UPROPERTY() // Fix potential stale pointer
 		UPrimitiveComponent* InteractDetectionSphere{ nullptr };
 
-	AActor* LineTrace() const;
+	AActor* LineTrace(const FVector& StartTrace, const FVector& EndTrace) const;
+	AActor* SphereTrace(const FVector& StartTrace, const FVector& EndTrace) const;
 	APlayerCameraManager* GetCameraManager() const;
-	double GetInteractableLookPercent(const UInteractComponent* Interactable) const;
 	static UInteractComponent* GetInteractableComponent(const AActor* Actor);
 	void UpdateClosestInteractable();
 
 	UPROPERTY(EditAnywhere, Category = "Interactable Detection", meta = (ClampMin = "0.0"))
 	double InteractRange{ 800.0 };
 
-	UPROPERTY(EditAnywhere, Category = "Interactable Detection", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	double LookPercentThreshold{ 0.99 };
+	UPROPERTY(EditAnywhere, Category = "Interactable Detection", meta = (ClampMin = "0.0", ClampMax = "25.0"))
+	float InteractionToleranceRadius{ 25.0 };
 
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

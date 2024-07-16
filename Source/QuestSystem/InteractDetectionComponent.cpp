@@ -96,13 +96,17 @@ UInteractComponent* UInteractDetectionComponent::GetInteractableComponent(const 
 void UInteractDetectionComponent::UpdateClosestInteractable()
 {
 	ClosestInteractable = nullptr;
-	double HighestLookPercent{ 0 };
 
-	for (const auto& InteractComponent : InteractablesInRange)
+	const auto CameraManager{ GetCameraManager() };
+	if (!CameraManager) return;
+
+	const FVector StartTrace{ CameraManager->GetCameraLocation() };
+	const FVector EndTrace{ StartTrace + CameraManager->GetCameraRotation().Vector() * InteractRange };
+
+	if (const auto Actor{ SphereTrace(StartTrace, EndTrace) })
 	{
-		if (const auto LookPercent{ GetInteractableLookPercent(InteractComponent) }; LookPercent > HighestLookPercent && LookPercent >= LookPercentThreshold)
+		if (const auto InteractComponent{ GetInteractableComponent(Actor) })
 		{
-			HighestLookPercent = LookPercent;
 			ClosestInteractable = InteractComponent;
 		}
 	}
@@ -111,7 +115,7 @@ void UInteractDetectionComponent::UpdateClosestInteractable()
 	if (!ClosestInteractable) return;
 
 	// Then do the most accurate check
-	if (const auto Closest{ LineTrace() })
+	if (const auto Closest{ LineTrace(StartTrace, EndTrace) })
 	{
 		if (const auto InteractComponent{ GetInteractableComponent(Closest) })
 		{
@@ -120,19 +124,19 @@ void UInteractDetectionComponent::UpdateClosestInteractable()
 	}
 }
 
-AActor* UInteractDetectionComponent::LineTrace() const
+AActor* UInteractDetectionComponent::LineTrace(const FVector& StartTrace, const FVector& EndTrace) const
 {
-	const auto CameraManager{ GetCameraManager() };
-	if (!CameraManager) return nullptr;
-
-	const FVector StartTrace{ CameraManager->GetCameraLocation() };
-	const FVector EndTrace{ StartTrace + CameraManager->GetCameraRotation().Vector() * InteractRange };
-
 	FHitResult HitResult;
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActor(GetOwner());
 
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, TraceParams))
+	FCollisionResponseParams ResponseParams;
+	ResponseParams.CollisionResponse.SetResponse(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
+	ResponseParams.CollisionResponse.SetResponse(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	ResponseParams.CollisionResponse.SetResponse(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
+
+
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, TraceParams, ResponseParams))
 	{
 		return HitResult.GetActor();
 	}
@@ -140,22 +144,23 @@ AActor* UInteractDetectionComponent::LineTrace() const
 	return nullptr;
 }
 
-double UInteractDetectionComponent::GetInteractableLookPercent(const UInteractComponent* Interactable) const
+AActor* UInteractDetectionComponent::SphereTrace(const FVector& StartTrace, const FVector& EndTrace) const
 {
-	const auto CameraManager{ GetCameraManager() };
-	if (!CameraManager) return 0;
+	FHitResult HitResult;
+	FCollisionQueryParams TraceParams;
+	TraceParams.AddIgnoredActor(GetOwner());
 
-	// Get the location of the camera
-	const FVector CameraLocation{ CameraManager->GetCameraLocation() };
-	const FVector CameraForward{ CameraManager->GetCameraRotation().Vector() };
+	FCollisionResponseParams ResponseParams;
+	ResponseParams.CollisionResponse.SetResponse(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
+	ResponseParams.CollisionResponse.SetResponse(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	ResponseParams.CollisionResponse.SetResponse(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 
-	// Get the location of the interactable
-	const FVector InteractableLocation{ Interactable->GetOwner()->GetActorLocation() };
+	if (GetWorld()->SweepSingleByChannel(HitResult, StartTrace, EndTrace, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeSphere(InteractionToleranceRadius), TraceParams, ResponseParams))
+	{
+		return HitResult.GetActor();
+	}
 
-	// Get the normalized direction from the camera to the interactable
-	const FVector CameraToInteractable{ (InteractableLocation - CameraLocation).GetSafeNormal() };
-
-	return FVector::DotProduct(CameraForward, CameraToInteractable);
+	return nullptr;
 }
 
 APlayerCameraManager* UInteractDetectionComponent::GetCameraManager() const
