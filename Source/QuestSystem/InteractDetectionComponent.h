@@ -39,16 +39,13 @@ private:
 	UPROPERTY() // Fix potential stale pointer
 		UPrimitiveComponent* InteractDetectionSphere{ nullptr };
 
-	AActor* LineTrace(const FVector& StartTrace, const FVector& EndTrace) const;
-	AActor* SphereTrace(const FVector& StartTrace, const FVector& EndTrace) const;
-	APlayerCameraManager* GetCameraManager() const;
 	static UInteractComponent* GetInteractableComponent(const AActor* Actor);
 	void UpdateClosestInteractable();
 
 	UPROPERTY(EditAnywhere, Category = "Interactable Detection", meta = (ClampMin = "0.0"))
 	double InteractRange{ 800.0 };
 
-	UPROPERTY(EditAnywhere, Category = "Interactable Detection", meta = (ClampMin = "0.0", ClampMax = "25.0"))
+	UPROPERTY(EditAnywhere, Category = "Interactable Detection", meta = (ClampMin = "0.0", ClampMax = "50.0"))
 	float InteractionToleranceRadius{ 25.0 };
 
 	UFUNCTION()

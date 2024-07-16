@@ -1,5 +1,6 @@
 #include "InteractDetectionComponent.h"
 #include "Components/SphereComponent.h"
+#include "HelperFunctions.h"
 #include "InteractComponent.h"
 
 UInteractDetectionComponent::UInteractDetectionComponent() :
@@ -97,13 +98,18 @@ void UInteractDetectionComponent::UpdateClosestInteractable()
 {
 	ClosestInteractable = nullptr;
 
-	const auto CameraManager{ GetCameraManager() };
+	const auto CameraManager{ UHelperFunctions::GetCameraManager(this) };
 	if (!CameraManager) return;
 
 	const FVector StartTrace{ CameraManager->GetCameraLocation() };
 	const FVector EndTrace{ StartTrace + CameraManager->GetCameraRotation().Vector() * InteractRange };
 
-	if (const auto Actor{ SphereTrace(StartTrace, EndTrace) })
+	FCollisionResponseParams ResponseParams;
+	ResponseParams.CollisionResponse.SetResponse(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
+	ResponseParams.CollisionResponse.SetResponse(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	ResponseParams.CollisionResponse.SetResponse(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
+
+	if (const auto Actor{ UHelperFunctions::SphereTrace(this, StartTrace, EndTrace, InteractionToleranceRadius, GetOwner(), ResponseParams) })
 	{
 		if (const auto InteractComponent{ GetInteractableComponent(Actor) })
 		{
@@ -115,58 +121,11 @@ void UInteractDetectionComponent::UpdateClosestInteractable()
 	if (!ClosestInteractable) return;
 
 	// Then do the most accurate check
-	if (const auto Closest{ LineTrace(StartTrace, EndTrace) })
+	if (const auto Closest{ UHelperFunctions::LineTrace(this, StartTrace, EndTrace, GetOwner(), ResponseParams) })
 	{
 		if (const auto InteractComponent{ GetInteractableComponent(Closest) })
 		{
 			ClosestInteractable = InteractComponent;
 		}
 	}
-}
-
-AActor* UInteractDetectionComponent::LineTrace(const FVector& StartTrace, const FVector& EndTrace) const
-{
-	FHitResult HitResult;
-	FCollisionQueryParams TraceParams;
-	TraceParams.AddIgnoredActor(GetOwner());
-
-	FCollisionResponseParams ResponseParams;
-	ResponseParams.CollisionResponse.SetResponse(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
-	ResponseParams.CollisionResponse.SetResponse(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-	ResponseParams.CollisionResponse.SetResponse(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
-
-
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, TraceParams, ResponseParams))
-	{
-		return HitResult.GetActor();
-	}
-
-	return nullptr;
-}
-
-AActor* UInteractDetectionComponent::SphereTrace(const FVector& StartTrace, const FVector& EndTrace) const
-{
-	FHitResult HitResult;
-	FCollisionQueryParams TraceParams;
-	TraceParams.AddIgnoredActor(GetOwner());
-
-	FCollisionResponseParams ResponseParams;
-	ResponseParams.CollisionResponse.SetResponse(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
-	ResponseParams.CollisionResponse.SetResponse(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-	ResponseParams.CollisionResponse.SetResponse(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
-
-	if (GetWorld()->SweepSingleByChannel(HitResult, StartTrace, EndTrace, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeSphere(InteractionToleranceRadius), TraceParams, ResponseParams))
-	{
-		return HitResult.GetActor();
-	}
-
-	return nullptr;
-}
-
-APlayerCameraManager* UInteractDetectionComponent::GetCameraManager() const
-{
-	const APlayerController* PlayerController{ GetWorld()->GetFirstPlayerController() };
-	if (!PlayerController) return nullptr;
-
-	return PlayerController->PlayerCameraManager;
 }
