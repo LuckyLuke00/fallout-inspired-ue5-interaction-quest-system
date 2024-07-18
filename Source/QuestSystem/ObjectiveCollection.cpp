@@ -44,7 +44,7 @@ UObjectiveBase* UObjectiveCollection::GetNextIncompleteObjective() const
 {
 	for (auto& Objective : Objectives)
 	{
-		if (Objective->IsComplete() || Objective->IsActive()) continue;
+		if (Objective->IsComplete() || (Objective->IsActive() && !Objective->IsHidden())) continue;
 		Objective->SetHidden(false);
 
 		return Objective;
