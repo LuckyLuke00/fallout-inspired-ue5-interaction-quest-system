@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "InventoryItem.generated.h"
 
+class UGrabComponent;
 class UInteractComponent;
 class UStaticMeshComponent;
 
@@ -24,7 +25,11 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UGrabComponent* GrabComponent{ nullptr };
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UInteractComponent* InteractComponent{ nullptr };
+
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* StaticMesh{ nullptr };
 

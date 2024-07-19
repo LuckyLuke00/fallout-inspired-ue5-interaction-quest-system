@@ -1,4 +1,5 @@
 #include "InventoryItem.h"
+#include "GrabComponent.h"
 #include "InteractComponent.h"
 #include "InventoryComponent.h"
 
@@ -6,8 +7,9 @@ AInventoryItem::AInventoryItem()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+	GrabComponent = CreateDefaultSubobject<UGrabComponent>(TEXT("GrabComponent"));
 	InteractComponent = CreateDefaultSubobject<UInteractComponent>(TEXT("InteractComponent"));
+	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 }
 
 void AInventoryItem::BeginPlay()
