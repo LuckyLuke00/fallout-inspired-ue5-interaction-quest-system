@@ -37,5 +37,5 @@ private:
 	UPhysicsHandleComponent* PhysicsHandleComponent{ nullptr };
 
 	UPROPERTY(EditAnywhere, Category = "Grab")
-	double HoldDistance{ 100.0 };
+	double HoldDistance{ 250.0 };
 };

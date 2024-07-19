@@ -1,4 +1,5 @@
 #include "HelperFunctions.h"
+#include <Kismet/KismetMathLibrary.h>
 
 const AActor* UHelperFunctions::LineTrace(const UObject* WorldContextObject, const FVector& StartTrace, const FVector& EndTrace, const AActor* IgnoreActor, const FCollisionResponseParams& ResponseParam)
 {
@@ -67,4 +68,22 @@ const APlayerCameraManager* UHelperFunctions::GetCameraManager(const UObject* Wo
 	if (!PlayerController) return nullptr;
 
 	return PlayerController->PlayerCameraManager;
+}
+
+FTransform UHelperFunctions::CalculateChildRelativeTransform(const FTransform& ParentTransform, const FTransform& ChildTransform)
+{
+	const FVector ChildRelativeLocation{ UKismetMathLibrary::InverseTransformLocation(ParentTransform, ChildTransform.GetLocation()) };
+	const FRotator ChildRelativeRotation{ UKismetMathLibrary::InverseTransformRotation(ParentTransform, ChildTransform.Rotator()) };
+	const FVector ChildRelativeScale3D{ ChildTransform.GetScale3D() / ParentTransform.GetScale3D() };
+
+	return FTransform{ ChildRelativeRotation, ChildRelativeLocation, ChildRelativeScale3D };
+}
+
+FTransform UHelperFunctions::CalculateChildWorldTransform(const FTransform& ParentTransform, const FTransform& RelativeTransform)
+{
+	const FVector ChildLocation{ UKismetMathLibrary::TransformLocation(ParentTransform, RelativeTransform.GetLocation()) };
+	const FRotator ChildRotation{ UKismetMathLibrary::TransformRotation(ParentTransform, RelativeTransform.Rotator()) };
+	const FVector ChildScale3D{ RelativeTransform.GetScale3D() * ParentTransform.GetScale3D() };
+
+	return FTransform{ ChildRotation, ChildLocation, ChildScale3D };
 }

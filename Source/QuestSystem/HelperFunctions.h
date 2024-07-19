@@ -18,4 +18,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Helper Functions")
 	static const APlayerController* GetLocalPlayerController(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure, Category = "Helper Functions")
+	static FTransform CalculateChildRelativeTransform(const FTransform& ParentTransform, const FTransform& ChildTransform);
+
+	UFUNCTION(BlueprintPure, Category = "Helper Functions")
+	static FTransform CalculateChildWorldTransform(const FTransform& ParentTransform, const FTransform& RelativeTransform);
 };
