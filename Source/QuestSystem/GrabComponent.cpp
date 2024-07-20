@@ -68,4 +68,6 @@ void UGrabComponent::SetColliderResponseChannels() const
 
 	Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
+
+	Collider->SetGenerateOverlapEvents(true);
 }

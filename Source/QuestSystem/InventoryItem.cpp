@@ -7,9 +7,9 @@ AInventoryItem::AInventoryItem()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	RootComponent = StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	GrabComponent = CreateDefaultSubobject<UGrabComponent>(TEXT("GrabComponent"));
 	InteractComponent = CreateDefaultSubobject<UInteractComponent>(TEXT("InteractComponent"));
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 }
 
 void AInventoryItem::BeginPlay()

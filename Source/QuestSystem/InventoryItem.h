@@ -25,13 +25,13 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UStaticMeshComponent* StaticMesh{ nullptr };
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UGrabComponent* GrabComponent{ nullptr };
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UInteractComponent* InteractComponent{ nullptr };
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UStaticMeshComponent* StaticMesh{ nullptr };
 
 	UPROPERTY(EditAnywhere, Category = "Inventory Item")
 	bool bDestroyOnPickup{ true };
