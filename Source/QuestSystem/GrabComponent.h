@@ -38,4 +38,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Grab")
 	double HoldDistance{ 250.0 };
+
+	void SetColliderResponseChannels() const;
 };

@@ -9,6 +9,8 @@ UGrabComponent::UGrabComponent()
 void UGrabComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetColliderResponseChannels();
 }
 
 void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -57,4 +59,13 @@ void UGrabComponent::TryRelease()
 	PhysicsHandleComponent->ReleaseComponent();
 
 	bIsHeld = false;
+}
+
+void UGrabComponent::SetColliderResponseChannels() const
+{
+	const auto Collider{ Cast<UPrimitiveComponent>(GetOwner()->GetComponentByClass(UPrimitiveComponent::StaticClass())) };
+	if (!Collider) return;
+
+	Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
 }

@@ -24,4 +24,10 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Helper Functions")
 	static FTransform CalculateChildWorldTransform(const FTransform& ParentTransform, const FTransform& RelativeTransform);
+
+	UFUNCTION(BlueprintPure, Category = "Helper Functions")
+	static FVector CalculateCircularPathOffset(const FRotator& Rotation, double Radius, const FRotator& AxisRotation);
+
+	UFUNCTION(BlueprintPure, Category = "Helper Functions")
+	static double AngleDegBetweenVectors(const FVector& Vector1, const FVector& Vector2);
 };

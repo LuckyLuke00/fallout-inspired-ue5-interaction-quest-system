@@ -87,3 +87,24 @@ FTransform UHelperFunctions::CalculateChildWorldTransform(const FTransform& Pare
 
 	return FTransform{ ChildRotation, ChildLocation, ChildScale3D };
 }
+
+FVector UHelperFunctions::CalculateCircularPathOffset(const FRotator& Rotation, double Radius, const FRotator& AxisRotation)
+{
+	const FVector Offset
+	{
+		Radius * FMath::Cos(FMath::DegreesToRadians(Rotation.Pitch)),
+		0.0,
+		Radius * FMath::Sin(FMath::DegreesToRadians(Rotation.Pitch))
+	};
+
+	return AxisRotation.RotateVector(Offset);
+}
+
+double UHelperFunctions::AngleDegBetweenVectors(const FVector& Vector1, const FVector& Vector2)
+{
+	const double DotProduct{ FVector::DotProduct(Vector1, Vector2) };
+	const double MagnitudeProduct{ Vector1.Size() * Vector2.Size() };
+	const double CosineValue{ DotProduct / MagnitudeProduct };
+
+	return FMath::RadiansToDegrees(FMath::Acos(CosineValue));
+}
