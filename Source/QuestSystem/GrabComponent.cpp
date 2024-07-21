@@ -82,10 +82,9 @@ bool UGrabComponent::WasReleaseSpeedExceeded() const
 		return false;
 	}
 
-	const double SpeedKmH{ PhysicsHandleComponent->GetGrabbedComponent()->GetPhysicsLinearVelocity().Size() * 0.036 };
-	GEngine->AddOnScreenDebugMessage(-1, GetWorld()->GetDeltaSeconds(), (SpeedKmH > ReleaseSpeedKmH) ? FColor::Red : FColor::Green, FString::Printf(TEXT("Velocity: %f km/h"), SpeedKmH));
-
-	return SpeedKmH > ReleaseSpeedKmH;
+	// Convert velocity (cm/s^2) to km/h^2 using 0.001296.
+	const double SpeedKmH{ PhysicsHandleComponent->GetGrabbedComponent()->GetPhysicsLinearVelocity().SizeSquared() * (0.001296) };
+	return SpeedKmH > ReleaseSpeedKmH * ReleaseSpeedKmH;
 }
 
 void UGrabComponent::TryRelease()
