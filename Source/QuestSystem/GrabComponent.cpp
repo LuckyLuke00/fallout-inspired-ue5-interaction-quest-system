@@ -1,5 +1,6 @@
 #include "GrabComponent.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
+#include "HelperFunctions.h"
 
 UGrabComponent::UGrabComponent()
 {
@@ -13,14 +14,7 @@ void UGrabComponent::BeginPlay()
 	SetColliderResponseChannels();
 }
 
-void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (!bIsHeld || PhysicsHandleComponent == nullptr) return;
-}
-
-void UGrabComponent::TryGrab(UPhysicsHandleComponent* PhysicsHandle)
+void UGrabComponent::TryGrab(UPhysicsHandleComponent* PhysicsHandle, const FTransform& RelativeTransform)
 {
 	if (PhysicsHandle == nullptr)
 	{
@@ -35,6 +29,8 @@ void UGrabComponent::TryGrab(UPhysicsHandleComponent* PhysicsHandle)
 		return;
 	}
 
+	RelativePreGrabTransform = UHelperFunctions::CalculateChildRelativeTransform(RelativeTransform, ComponentToGrab->GetComponentTransform());
+
 	PhysicsHandleComponent = PhysicsHandle;
 	PhysicsHandleComponent->GrabComponentAtLocationWithRotation(
 		ComponentToGrab,
@@ -44,6 +40,42 @@ void UGrabComponent::TryGrab(UPhysicsHandleComponent* PhysicsHandle)
 	);
 
 	bIsHeld = true;
+}
+
+void UGrabComponent::UpdatePhysicsHandleTargetLocationAndRotation(const FTransform& ActorTransform, const FRotator& AxisRotation, const FVector& Origin)
+{
+	if (PhysicsHandleComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UGrabComponent::UpdatePhysicsHandleTargetLocationAndRotation - PhysicsHandleComponent is nullptr"));
+		return;
+	}
+
+	const FVector CircularPath{ UHelperFunctions::CalculateCircularPathOffset(ActorTransform.Rotator(), HoldDistance, AxisRotation) };
+	const FVector TargetLocation{ CircularPath + Origin };
+
+	const FRotator WorldRotation{ UHelperFunctions::CalculateChildWorldTransform(ActorTransform, RelativePreGrabTransform).Rotator() };
+
+	PhysicsHandleComponent->SetTargetLocationAndRotation(TargetLocation, WorldRotation);
+}
+
+void UGrabComponent::AddLocalRotation(const FRotator& DeltaRotation)
+{
+	if (PhysicsHandleComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UGrabComponent::AddLocalRotation - PhysicsHandleComponent is nullptr"));
+		return;
+	}
+
+	if (DeltaRotation.IsZero())
+	{
+		return;
+	}
+
+	// Convert the DeltaRotation to a quaternion
+	FQuat DeltaQuat = FQuat(DeltaRotation);
+
+	// Add the DeltaRotation to the RelativePreGrabTransform
+	RelativePreGrabTransform.SetRotation(DeltaQuat * RelativePreGrabTransform.GetRotation());
 }
 
 void UGrabComponent::TryRelease()

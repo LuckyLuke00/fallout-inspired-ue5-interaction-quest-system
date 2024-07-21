@@ -18,8 +18,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 	UFUNCTION(BlueprintCallable, Category = "Grab")
 	bool IsHeld() const { return bIsHeld; }
 
@@ -27,7 +25,13 @@ public:
 	double GetHoldDistance() const { return HoldDistance; }
 
 	UFUNCTION(BlueprintCallable, Category = "Grab")
-	void TryGrab(UPhysicsHandleComponent* PhysicsHandle);
+	void TryGrab(UPhysicsHandleComponent* PhysicsHandle, const FTransform& RelativeTransform);
+
+	UFUNCTION(BlueprintCallable, Category = "Grab")
+	void UpdatePhysicsHandleTargetLocationAndRotation(const FTransform& ActorTransform, const FRotator& AxisRotation, const FVector& Origin);
+
+	UFUNCTION(BlueprintCallable, Category = "Grab")
+	void AddLocalRotation(const FRotator& DeltaRotation);
 
 	UFUNCTION(BlueprintCallable, Category = "Grab")
 	void TryRelease();
@@ -35,6 +39,7 @@ public:
 private:
 	bool bIsHeld{ false };
 	UPhysicsHandleComponent* PhysicsHandleComponent{ nullptr };
+	FTransform RelativePreGrabTransform;
 
 	UPROPERTY(EditAnywhere, Category = "Grab")
 	double HoldDistance{ 250.0 };
