@@ -34,15 +34,27 @@ public:
 	void AddLocalRotation(const FRotator& DeltaRotation);
 
 	UFUNCTION(BlueprintCallable, Category = "Grab")
+	bool WasReleaseSpeedExceeded() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Grab")
 	void TryRelease();
 
 private:
-	bool bIsHeld{ false };
-	UPhysicsHandleComponent* PhysicsHandleComponent{ nullptr };
-	FTransform RelativePreGrabTransform;
-
 	UPROPERTY(EditAnywhere, Category = "Grab")
 	double HoldDistance{ 250.0 };
+
+	UPROPERTY(EditAnywhere, Category = "Grab")
+	double ReleaseSpeedKmH{ 65.0 };
+
+	UPROPERTY(EditAnywhere, Category = "Grab", meta = (ClampMin = "0.0"))
+	float InterpolationSpeed{ 10.f };
+
+	bool bIsHeld{ false };
+
+	FTransform RelativePreGrabTransform;
+
+	UPhysicsHandleComponent* PhysicsHandleComponent{ nullptr };
+	UPrimitiveComponent* GrabbedPrimitiveComponent{ nullptr };
 
 	void SetColliderResponseChannels() const;
 };

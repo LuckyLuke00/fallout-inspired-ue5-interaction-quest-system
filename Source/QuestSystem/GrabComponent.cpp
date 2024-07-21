@@ -32,6 +32,8 @@ void UGrabComponent::TryGrab(UPhysicsHandleComponent* PhysicsHandle, const FTran
 	RelativePreGrabTransform = UHelperFunctions::CalculateChildRelativeTransform(RelativeTransform, ComponentToGrab->GetComponentTransform());
 
 	PhysicsHandleComponent = PhysicsHandle;
+
+	PhysicsHandleComponent->SetInterpolationSpeed(InterpolationSpeed);
 	PhysicsHandleComponent->GrabComponentAtLocationWithRotation(
 		ComponentToGrab,
 		NAME_None,
@@ -51,8 +53,8 @@ void UGrabComponent::UpdatePhysicsHandleTargetLocationAndRotation(const FTransfo
 	}
 
 	const FVector CircularPath{ UHelperFunctions::CalculateCircularPathOffset(ActorTransform.Rotator(), HoldDistance, AxisRotation) };
-	const FVector TargetLocation{ CircularPath + Origin };
 
+	const FVector TargetLocation{ CircularPath + Origin };
 	const FRotator WorldRotation{ UHelperFunctions::CalculateChildWorldTransform(ActorTransform, RelativePreGrabTransform).Rotator() };
 
 	PhysicsHandleComponent->SetTargetLocationAndRotation(TargetLocation, WorldRotation);
@@ -70,6 +72,20 @@ void UGrabComponent::AddLocalRotation(const FRotator& DeltaRotation)
 		return;
 
 	RelativePreGrabTransform.SetRotation(DeltaRotation.Quaternion() * RelativePreGrabTransform.GetRotation());
+}
+
+bool UGrabComponent::WasReleaseSpeedExceeded() const
+{
+	if (PhysicsHandleComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UGrabComponent::WasReleaseSpeedExceeded - PhysicsHandleComponent is nullptr"));
+		return false;
+	}
+
+	const double SpeedKmH{ PhysicsHandleComponent->GetGrabbedComponent()->GetPhysicsLinearVelocity().Size() * 0.036 };
+	GEngine->AddOnScreenDebugMessage(-1, GetWorld()->GetDeltaSeconds(), (SpeedKmH > ReleaseSpeedKmH) ? FColor::Red : FColor::Green, FString::Printf(TEXT("Velocity: %f km/h"), SpeedKmH));
+
+	return SpeedKmH > ReleaseSpeedKmH;
 }
 
 void UGrabComponent::TryRelease()
