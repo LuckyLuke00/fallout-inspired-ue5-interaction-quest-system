@@ -67,15 +67,9 @@ void UGrabComponent::AddLocalRotation(const FRotator& DeltaRotation)
 	}
 
 	if (DeltaRotation.IsZero())
-	{
 		return;
-	}
 
-	// Convert the DeltaRotation to a quaternion
-	FQuat DeltaQuat = FQuat(DeltaRotation);
-
-	// Add the DeltaRotation to the RelativePreGrabTransform
-	RelativePreGrabTransform.SetRotation(DeltaQuat * RelativePreGrabTransform.GetRotation());
+	RelativePreGrabTransform.SetRotation(DeltaRotation.Quaternion() * RelativePreGrabTransform.GetRotation());
 }
 
 void UGrabComponent::TryRelease()
