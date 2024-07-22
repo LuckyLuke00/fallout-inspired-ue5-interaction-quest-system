@@ -1,4 +1,6 @@
 #include "HelperFunctions.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include <Kismet/KismetMathLibrary.h>
 
 const AActor* UHelperFunctions::LineTrace(const UObject* WorldContextObject, const FVector& StartTrace, const FVector& EndTrace, const AActor* IgnoreActor, const FCollisionResponseParams& ResponseParam)
@@ -68,6 +70,43 @@ const APlayerCameraManager* UHelperFunctions::GetCameraManager(const UObject* Wo
 	if (!PlayerController) return nullptr;
 
 	return PlayerController->PlayerCameraManager;
+}
+
+const UCameraComponent* UHelperFunctions::GetActiveCamera(const UObject* WorldContextObject)
+{
+	const APlayerCameraManager* CameraManager{ GetCameraManager(WorldContextObject) };
+	if (!CameraManager) return nullptr;
+
+	const AActor* ViewTarget{ CameraManager->GetViewTarget() };
+
+	TInlineComponentArray<UCameraComponent*> CameraComponents;
+	ViewTarget->GetComponents<UCameraComponent>(CameraComponents);
+
+	for (UCameraComponent* CameraComponent : CameraComponents)
+	{
+		if (CameraComponent->IsActive())
+		{
+			return CameraComponent;
+		}
+	}
+
+	return nullptr;
+}
+
+FVector UHelperFunctions::GetCameraOffset(const UCameraComponent* CameraComponent)
+{
+	if (CameraComponent == nullptr)
+		return FVector::ZeroVector;
+
+	FVector CameraOffset{ CameraComponent->GetRelativeLocation() };
+
+	// Check if the attach parent is a camera boom (SpringArmComponent)
+	if (const USpringArmComponent * SpringArmComponent{ Cast<USpringArmComponent>(CameraComponent->GetAttachParent()) })
+	{
+		CameraOffset += SpringArmComponent->SocketOffset;
+	}
+
+	return CameraOffset;
 }
 
 FTransform UHelperFunctions::CalculateChildRelativeTransform(const FTransform& ParentTransform, const FTransform& ChildTransform)

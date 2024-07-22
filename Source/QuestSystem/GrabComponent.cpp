@@ -53,6 +53,7 @@ void UGrabComponent::UpdatePhysicsHandleTargetLocationAndRotation(const FTransfo
 	}
 
 	const FVector CircularPath{ UHelperFunctions::CalculateCircularPathOffset(ActorTransform.Rotator(), HoldDistance, AxisRotation) };
+	const FVector ForwardVector{ ActorTransform.GetRotation().GetForwardVector() };
 
 	const FVector TargetLocation{ CircularPath + Origin };
 	const FRotator WorldRotation{ UHelperFunctions::CalculateChildWorldTransform(ActorTransform, RelativePreGrabTransform).Rotator() };
