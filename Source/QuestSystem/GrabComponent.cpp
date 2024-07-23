@@ -83,9 +83,41 @@ bool UGrabComponent::WasReleaseSpeedExceeded() const
 		return false;
 	}
 
+	UPrimitiveComponent* GrabbedComponent{ PhysicsHandleComponent->GetGrabbedComponent() };
+	if (GrabbedComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UGrabComponent::WasReleaseSpeedExceeded - GrabbedComponent is nullptr"));
+		return false;
+	}
+
 	// Convert velocity (cm/s^2) to km/h^2 using 0.001296.
-	const double SpeedKmH{ PhysicsHandleComponent->GetGrabbedComponent()->GetPhysicsLinearVelocity().SizeSquared() * (0.001296) };
-	return SpeedKmH > ReleaseSpeedKmH * ReleaseSpeedKmH;
+	const double SqrSpeedKmH{ GrabbedComponent->GetPhysicsLinearVelocity().SizeSquared() * (0.001296) };
+	return SqrSpeedKmH > ReleaseSpeedKmH * ReleaseSpeedKmH;
+}
+
+bool UGrabComponent::WasReleaseDistanceExceeded() const
+{
+	if (PhysicsHandleComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UGrabComponent::WasReleaseDistanceExceeded - PhysicsHandleComponent is nullptr"));
+		return false;
+	}
+
+	UPrimitiveComponent* GrabbedComponent{ PhysicsHandleComponent->GetGrabbedComponent() };
+	if (GrabbedComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UGrabComponent::WasReleaseDistanceExceeded - GrabbedComponent is nullptr"));
+		return false;
+	}
+
+	const FVector CurrentLocation{ GrabbedComponent->GetComponentLocation() };
+
+	FVector TargetLocation;
+	FRotator TargetRotation;
+	PhysicsHandleComponent->GetTargetLocationAndRotation(TargetLocation, TargetRotation);
+
+	const double SqrDistanceM{ FVector::DistSquared(TargetLocation, CurrentLocation) * .0001 };
+	return SqrDistanceM > ReleaseDistanceM * ReleaseDistanceM;
 }
 
 void UGrabComponent::TryRelease()

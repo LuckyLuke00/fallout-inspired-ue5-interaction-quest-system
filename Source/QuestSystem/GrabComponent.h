@@ -18,11 +18,14 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Grab")
+	UFUNCTION(BlueprintPure, Category = "Grab")
 	bool IsHeld() const { return bIsHeld; }
 
-	UFUNCTION(BlueprintCallable, Category = "Grab")
+	UFUNCTION(BlueprintPure, Category = "Grab")
 	double GetHoldDistance() const { return HoldDistance; }
+
+	UFUNCTION(BlueprintPure, Category = "Grab")
+	double GetReleaseDistanceM() const { return ReleaseDistanceM; }
 
 	UFUNCTION(BlueprintCallable, Category = "Grab")
 	void TryGrab(UPhysicsHandleComponent* PhysicsHandle, const FTransform& RelativeTransform);
@@ -37,6 +40,9 @@ public:
 	bool WasReleaseSpeedExceeded() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Grab")
+	bool WasReleaseDistanceExceeded() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Grab")
 	void TryRelease();
 
 private:
@@ -45,6 +51,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Grab")
 	double ReleaseSpeedKmH{ 65.0 };
+
+	UPROPERTY(EditAnywhere, Category = "Grab")
+	double ReleaseDistanceM{ 1.25 };
 
 	UPROPERTY(EditAnywhere, Category = "Grab", meta = (ClampMin = "0.0"))
 	float InterpolationSpeed{ 10.f };
