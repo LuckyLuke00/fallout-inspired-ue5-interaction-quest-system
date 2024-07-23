@@ -105,6 +105,10 @@ FVector UHelperFunctions::GetCameraOffset(const UCameraComponent* CameraComponen
 	{
 		CameraOffset += SpringArmComponent->SocketOffset;
 	}
+	else if (const FName SocketName{ CameraComponent->GetAttachSocketName() }; SocketName != NAME_None)
+	{
+		CameraOffset += CameraComponent->GetSocketLocation(SocketName) - CameraComponent->GetAttachParent()->GetComponentLocation();
+	}
 
 	return CameraOffset;
 }
