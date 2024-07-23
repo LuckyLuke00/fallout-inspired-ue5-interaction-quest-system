@@ -1,4 +1,4 @@
-# Fallout-Inspired Interaction and Quest System in Unreal Engine 5
+# Fallout-Inspired Interaction and Quest System
 
 This project recreates the intuitive interaction system from Fallout 4 using Unreal Engine 5, C++, and Blueprints. It was developed as a graduation thesis project, mirroring the immersive experience of Fallout 4's interactions and quests.
 
@@ -17,7 +17,7 @@ This project recreates the intuitive interaction system from Fallout 4 using Unr
 
 ## 🚀 Getting Started
 1. Ensure you have Unreal Engine 5.4 installed on your system.
-2. Clone this repository: `https://github.com/LuckyLuke00/Grad_Work_Quest_System_Prototype.git`
+2. Clone this repository: `git clone https://github.com/LuckyLuke00/fallout-inspired-ue5-interaction-quest-system.git`
 3. Right-click on the `.uproject` file and select "Generate Visual Studio project files" (if you're using Visual Studio).
 4. Open the `.uproject` file to launch the project in Unreal Engine 5.4.
 5. Once the project is open, you can explore the interaction system in the default level or integrate it into your levels.
